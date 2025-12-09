@@ -1,65 +1,98 @@
-import Image from "next/image";
+"use client";
+import { useState } from 'react';
+import Link from 'next/link';
+
+// Dummy Data (Sesuai ERD: title, game_name, rank_tier, dll)
+const LOBBIES = [
+  { id: 1, title: "Push Rank Mythic Fast", game: "HOK", rank: "Grandmaster", slug: "push-rank-mythic-hok" },
+  { id: 2, title: "Butuh Healer No Toxic", game: "MLBB", rank: "Epic", slug: "butuh-healer-mlbb" },
+  { id: 3, title: "Valorant Santai Unrated", game: "VALORANT", rank: "Silver", slug: "valorant-santai" },
+];
 
 export default function Home() {
+  // FLOW: Apakah mau cari game spesifik? (State Filter)
+  const [filter, setFilter] = useState("ALL");
+
+  // Logic Filter
+  const filteredLobbies = filter === "ALL" 
+    ? LOBBIES 
+    : LOBBIES.filter(l => l.game === filter);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <main className="min-h-screen bg-[#020617] text-slate-50 font-body selection:bg-indigo-500 selection:text-white">
+      
+      {/* --- HERO SECTION (Sesuai Desain Figma Kamu) --- */}
+      <section className="relative h-[500px] flex items-center justify-center overflow-hidden">
+        {/* Background Pattern Tipis */}
+        <div className="absolute inset-0 bg-[url('/grid-pattern.png')] opacity-5 pointer-events-none"></div>
+        
+        <div className="z-10 text-center px-4 max-w-4xl">
+          <h1 className="font-heading text-5xl md:text-7xl font-bold mb-4 tracking-tight">
+            STOP PLAYING <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">SOLO.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-slate-400 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+            Find your dream team and become the winner. Platform pencarian teman mabar terpercaya.
           </p>
+          
+          {/* FLOW: Di Home -> Klik tombol "Buat Lobby" */}
+          <Link href="/create-lobby" className="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all hover:scale-105">
+            JOIN SQUAD NOW!
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* --- FILTER & LIST SECTION --- */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        
+        {/* FLOW: Klik Filter Game */}
+        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+          {["ALL", "HOK", "MLBB", "VALORANT"].map((game) => (
+            <button
+              key={game}
+              onClick={() => setFilter(game)}
+              className={`px-6 py-2 rounded-full font-bold text-sm transition-all border ${
+                filter === game 
+                ? "bg-white text-[#020617] border-white" // Active State
+                : "bg-transparent text-slate-400 border-slate-700 hover:border-slate-500" // Inactive
+              }`}
+            >
+              {game}
+            </button>
+          ))}
         </div>
-      </main>
-    </div>
+
+        {/* FLOW: Tampilkan List Lobby */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLobbies.map((lobby) => (
+            <Link key={lobby.id} href={`/lobby/${lobby.slug}`} className="group">
+              <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-6 hover:border-indigo-500 transition-all hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                {/* Decoration Glow */}
+                <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500 blur-[50px] opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-xs font-bold px-3 py-1 rounded bg-slate-800 text-indigo-400 border border-slate-700">
+                    {lobby.game}
+                  </span>
+                  <span className="text-xs text-slate-500">Just now</span>
+                </div>
+                
+                <h3 className="font-heading text-xl font-bold mb-2 group-hover:text-indigo-400 transition-colors">
+                  {lobby.title}
+                </h3>
+                
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                  <span className="text-sm text-yellow-400 font-medium">{lobby.rank}</span>
+                </div>
+
+                <div className="w-full py-2 text-center border border-slate-700 rounded-lg text-sm text-slate-300 group-hover:bg-indigo-600 group-hover:border-indigo-600 group-hover:text-white transition-all">
+                  Lihat Detail
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
